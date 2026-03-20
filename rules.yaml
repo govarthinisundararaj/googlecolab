@@ -1,56 +1,45 @@
 deployment:
   replicas:
-    min: 1
+    min: 2
     max: 5
 
   strategy:
-    allowedTypes:
-      - RollingUpdate
+    type: RollingUpdate
     rollingUpdate:
-      maxUnavailable:
-        max: 1
-      maxSurge:
-        max: 2
+      maxUnavailable: 1
+      maxSurge: 1
 
-  containers:
-    image:
-      allowedRegistries:
-        - docker.io
-        - mycompany.com
-      disallowedTags:
-        - latest
+container:
+  image:
+    disallowLatest: true
 
-    ports:
+  resources:
+    required: true
+    requests:
+      cpu:
+        min: "100m"
+        max: "500m"
+      memory:
+        min: "64Mi"
+        max: "256Mi"
+
+  probes:
+    liveness:
       required: true
-      allowedRange:
-        min: 1
-        max: 65535
+      initialDelaySeconds:
+        min: 5
+        max: 30
+      periodSeconds:
+        max: 20
 
-    resources:
+    readiness:
       required: true
-      requests:
-        cpu:
-          min: "100m"
-          max: "500m"
-        memory:
-          min: "64Mi"
-          max: "512Mi"
-      limits:
-        cpu:
-          max: "1"
-        memory:
-          max: "1Gi"
+      initialDelaySeconds:
+        min: 2
+        max: 15
 
-    probes:
-      liveness:
-        required: true
-        httpGet:
-          required: true
-
-      readiness:
-        required: true
-
-  metadata:
-    labels:
-      required:
-        - app
+  ports:
+    required: true
+    allowed:
+      - 80
+      - 8080
